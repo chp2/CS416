@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transmission Type vs Scores</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-svg-annotation@2.5.1"></script>
+    <style>
+        .axis-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .button2 {
+            padding: 10px 20px;
+            background-color: #e3240f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .button3 {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: 120px;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .graph-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <p>Scene 2: Transmission Type</p>
+    <p>Now We will dig deeper by examining how the transmission type affects the score. Similar to the previous scene, use the 'Air pollution Score' and "Greenhouse Gas Score" buttons to navigate between the different datasets. To reveal the average combustion of CO2, hover the mouse over the bar.</p>
+    <p>According to the graph, for Air pollution Score, Auto-6 has the highest score, while Automan-7 the least. For Greenhouse gas score, SCV-6 has the highest and AutoMan-7 the least.</p>
+    <div class="button-container">
+        <button class="button2" onclick="updateChart('AirPollutionScore', 'red')">Air Pollution Score</button>
+        <button class="button" onclick="updateChart('Greenhouse Gas Score', 'green')">Greenhouse Gas Score</button>
+    </div>
+    <div class="graph-container">
+        <svg width="1400" height="1400"></svg>
+    </div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const data = [
+                {
+            "Trans": "AMS-6",
+            "AirPollutionScore": 5.0,
+            "Greenhouse Gas Score": 6.0,
+            "CombCO2": 337.0
+        },
+        {
+            "Trans": "AMS-7",
+            "AirPollutionScore": 4.892857142857143,
+            "Greenhouse Gas Score": 4.892857142857143,
+            "CombCO2": 387.67857142857144
+        },
+        {
+            "Trans": "AMS-8",
+            "AirPollutionScore": 4.333333333333333,
+            "Greenhouse Gas Score": 4.416666666666667,
+            "CombCO2": 416.1666666666667
+        },
+        {
+            "Trans": "Auto-10",
+            "AirPollutionScore": 5.34,
+            "Greenhouse Gas Score": 3.64,
+            "CombCO2": 489.42
+        },
+        {
+            "Trans": "Auto-6",
+            "AirPollutionScore": 7.0,
+            "Greenhouse Gas Score": 5.5,
+            "CombCO2": 328.5
+        },
+        {
+            "Trans": "Auto-8",
+            "AirPollutionScore": 5.413333333333333,
+            "Greenhouse Gas Score": 4.133333333333334,
+            "CombCO2": 443.2
+        },
+        {
+            "Trans": "Auto-9",
+            "AirPollutionScore": 6.0,
+            "Greenhouse Gas Score": 4.5813953488372094,
+            "CombCO2": 406.06976744186045
+        },
+        {
+            "Trans": "AutoMan-7",
+            "AirPollutionScore": 3.3333333333333335,
+            "Greenhouse Gas Score": 2.6666666666666665,
+            "CombCO2": 563.1666666666666
+        },
+        {
+            "Trans": "AutoMan-8",
+            "AirPollutionScore": 5.6,
+            "Greenhouse Gas Score": 4.0,
+            "CombCO2": 461.0
+        },
+        {
+            "Trans": "CVT",
+            "AirPollutionScore": 6.884615384615385,
+            "Greenhouse Gas Score": 6.615384615384615,
+            "CombCO2": 260.6923076923077
+        },
+        {
+            "Trans": "Man-5",
+            "AirPollutionScore": 6.5,
+            "Greenhouse Gas Score": 5.75,
+            "CombCO2": 302.5
+        },
+        {
+            "Trans": "Man-6",
+            "AirPollutionScore": 4.466666666666667,
+            "Greenhouse Gas Score": 4.6,
+            "CombCO2": 413.1333333333333
+        },
+        {
+            "Trans": "Man-7",
+            "AirPollutionScore": 5.0,
+            "Greenhouse Gas Score": 4.0,
+            "CombCO2": 440.0
+        },
+        {
+            "Trans": "SCV-1",
+            "AirPollutionScore": 5.75,
+            "Greenhouse Gas Score": 6.625,
+            "CombCO2": 267.25
+        },
+        {
+            "Trans": "SCV-10",
+            "AirPollutionScore": 7.0,
+            "Greenhouse Gas Score": 7.0,
+            "CombCO2": 256.0
+        },
+        {
+            "Trans": "SCV-6",
+            "AirPollutionScore": 7.0,
+            "Greenhouse Gas Score": 7.125,
+            "CombCO2": 234.875
+        },
+        {
+            "Trans": "SCV-7",
+            "AirPollutionScore": 6.111111111111111,
+            "Greenhouse Gas Score": 5.777777777777778,
+            "CombCO2": 313.22222222222223
+        },
+        {
+            "Trans": "SCV-8",
+            "AirPollutionScore": 5.863636363636363,
+            "Greenhouse Gas Score": 5.409090909090909,
+            "CombCO2": 328.77272727272725
+        },
+        {
+            "Trans": "SemiAuto-10",
+            "AirPollutionScore": 5.423728813559322,
+            "Greenhouse Gas Score": 4.305084745762712,
+            "CombCO2": 432.50847457627117
+        },
+        {
+            "Trans": "SemiAuto-5",
+            "AirPollutionScore": 5.0,
+            "Greenhouse Gas Score": 3.0,
+            "CombCO2": 512.3333333333334
+        },
+        {
+            "Trans": "SemiAuto-6",
+            "AirPollutionScore": 5.230769230769231,
+            "Greenhouse Gas Score": 5.038461538461538,
+            "CombCO2": 366.7307692307692
+        },
+        {
+            "Trans": "SemiAuto-7",
+            "AirPollutionScore": 3.5454545454545454,
+            "Greenhouse Gas Score": 2.8181818181818183,
+            "CombCO2": 546.9090909090909
+        },
+        {
+            "Trans": "SemiAuto-8",
+            "AirPollutionScore": 5.0790960451977405,
+            "Greenhouse Gas Score": 4.694915254237288,
+            "CombCO2": 392.71751412429376
+        },
+        {
+            "Trans": "SemiAuto-9",
+            "AirPollutionScore": 5.709677419354839,
+            "Greenhouse Gas Score": 4.483870967741935,
+            "CombCO2": 413.96774193548384
+        }
+        ];
+
+        const margin = {top: 50, right: 30, bottom: 40, left: 50},
+              width = 1400 - margin.left - margin.right,
+              height = 500 - margin.top - margin.bottom;
+
+        const svg = d3.select("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.Trans))
+            .range([0, width])
+            .padding(0.2);
+
+        const y = d3.scaleLinear()
+            .range([height, 0]);
+
+        const tooltip = d3.select("#tooltip");
+
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", 35)
+            .attr("fill", "black")
+            .text("Transmission Type");
+
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y).ticks(10))
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", -height / 2)
+            .attr("y", -40)
+            .attr("transform", "rotate(-90)")
+            .attr("fill", "black");
+
+        const updateChart = (scoreType, color) => {
+            y.domain([0, d3.max(data, d => d[scoreType])]);
+
+            svg.selectAll(".y-axis")
+                .call(d3.axisLeft(y));
+
+            const bars = svg.selectAll(".bar")
+                .data(data, d => d.Trans);
+
+            bars.enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.Trans))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(0))
+                .attr("height", d => height - y(0))
+                .merge(bars)
+                .transition()
+                .duration(750)
+                .attr("y", d => y(d[scoreType]))
+                .attr("height", d => height - y(d[scoreType]))
+                .attr("fill", color);
+
+            bars.exit().remove();
+
+            svg.selectAll(".bar")
+                .on("mouseover", function (event, d) {
+                    d3.select(this).attr("fill", "orange");
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`Avg CombCO2: ${d.CombCO2}`)
+                           .style("left", (event.pageX + 5) + "px")
+                           .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function (d) {
+                    d3.select(this).attr("fill", color);
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+
+            svg.selectAll(".y-axis .axis-label")
+                .text(scoreType.replace("Score", " Score"));
+
+            // Add annotations
+            svg.selectAll(".annotation").remove();  // Remove existing annotations
+
+            const maxData = data.reduce((max, d) => d[scoreType] > max[scoreType] ? d : max, data[0]);
+            const minData = data.reduce((min, d) => d[scoreType] < min[scoreType] ? d : min, data[0]);
+
+            const annotations = [
+                {
+                    note: { label: "The cleanest" },
+                    subject: { radius: 20 },  // Optional: Adds a circle
+                    dx: 0,
+                    dy: -10,
+                    x: x(maxData.Trans) + x.bandwidth() / 2,
+                    y: y(maxData[scoreType]),
+                    color: "blue"
+                },
+                {
+                    note: { label: "The most polluting" },
+                    subject: { radius: 20 },  // Optional: Adds a circle
+                    dx: 0,
+                    dy: -30,
+                    x: x(minData.Trans) + x.bandwidth() / 2,
+                    y: y(minData[scoreType]),
+                    color: "red"
+                }
+            ];
+
+            const makeAnnotations = d3.annotation()
+                .type(d3.annotationLabel)
+                .annotations(annotations);
+
+            svg.append("g")
+                .attr("class", "annotation-group")
+                .call(makeAnnotations);
+        };
+
+        updateChart("AirPollutionScore", "red");
+    </script>
+    <div class="button-container">
+        <button class="button3" onclick="window.location.href='Title.html'">Home</button>
+    </div>
+</body>
+</html>
